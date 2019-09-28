@@ -7,7 +7,7 @@ import sys
 from os import system, name  
 import urllib.request
 
-default_node_ip = "159.203.95.84"
+default_node_ip = "poolbay.fun"
 
 #ask user if they want to use a custom node
 user_node_selection = input("Would you like to use a custom node? y/n: ")
@@ -28,9 +28,9 @@ else:
 #
 # COIN CONFIG
 #  
-rpc_port = 11246
-oscillated = TurtleCoind(rpc_host, rpc_port)
-coin_ticker = "OSL"
+rpc_port = 43111
+pixld = TurtleCoind(rpc_host, rpc_port)
+coin_ticker = "PIXL"
 version = "1.1.1"
 menu = "0"
 
@@ -46,7 +46,6 @@ def clear():
 #main menu loop
 while menu == "0":
     print("Copyright (c) 2019, The Oscillate developers")
-    print("")
     print(str(coin_ticker) + " Block Explorer v" + str(version))
     print("")
     print("|----------------Options----------------|")
@@ -67,12 +66,12 @@ while menu == "0":
         clear()
 
         #Hash or Height?
-        height_or_hash = input("Do you want to search for a block by height or by hash?: ")
+        height_or_hash = input("Do you want to search for a block by height or by hash? (height/hash) : ")
 
         if height_or_hash == "height":
             # request blockheight from user
             block_height = input("Enter " + str(coin_ticker) + " Block Height: ")
-            block_header = oscillated.get_block_header_by_height(int(block_height))
+            block_header = pixld.get_block_header_by_height(int(block_height))
 
             # load our Json for block height input
             block_header_dump = json.dumps(block_header)
@@ -80,7 +79,7 @@ while menu == "0":
         else:
              #request hash from user
              user_block_hash = input("Block height to view: ")
-             user_block_hash_data = oscillated.get_block_header_by_hash(str(user_block_hash))
+             user_block_hash_data = pixld.get_block_header_by_hash(str(user_block_hash))
 
              # load our Json for bock hash input
              user_block_hash_data_dumps = json.dumps(user_block_hash_data)
@@ -154,7 +153,7 @@ while menu == "0":
         while True:
             #snag that block
             try:
-                last_block = oscillated.get_last_block_header()
+                last_block = pixld.get_last_block_header()
             except(ConnectionError):
                 print("Error connecting to daemon!")
                 menu = 0
@@ -203,7 +202,7 @@ while menu == "0":
          txn_hash = input("Enter " + str(coin_ticker) + " TXN hash: ")
 
          # send that data to the daemon, and get the response back
-         txn_hash_data = oscillated.get_transaction(txn_hash)
+         txn_hash_data = pixld.get_transaction(txn_hash)
 
         #JSON load
          txn_hash_dump = json.dumps(txn_hash_data)
@@ -234,24 +233,36 @@ while menu == "0":
 
         print("Loading pool data.... please wait...")
 
-        pool1 = "http://159.203.95.84:8245/stats" #official pool (pxckets)
-        pool2 = "http://74.130.176.161:8245/stats" #DuckTownCrypto (Dr. Greenthumb)
-        pool3 = "http://osc.line-pool.ru/stats" #Line Pool (mawr)
-        pool4 = "http://whonnock.spookypool.nl:8217/stats" #SpookyPool (MunchieHigh420)
+        pool1 = "https://webpxl.semipool.com/api/pool/stats" #SemiPool (Bobbie)
+        pool2 = "http://pool.pxl.pubnodes.com/api/stats" #Pubnodes (Hooftly)
+        pool3 = "http://158.69.207.25:8117/stats" #Vano (???)
+        pool4 = "http://pxlpool.hopto.org:8117/stats" #Hopto (???)
+        pool5 = "https://cnpool.cc/api/pxl/stats" #cnpool (???)
+        pool6 = "https://spookypool.nl:8618/stats" #SpookyPool (MunchieHigh420)
+        pool7 = "https://pxl.miningpool.fun:8131/stats" #miningpool.fun (???)
+        pool8 = "http://poolbay.fun:9000/stats" #POOLBAYYYYY (pxckets)
 
         pool1_response = urllib.request.urlopen(pool1)
         pool2_response = urllib.request.urlopen(pool2)
         pool3_response = urllib.request.urlopen(pool3)
         pool4_response = urllib.request.urlopen(pool4)
+        pool5_response = urllib.request.urlopen(pool5)
+        pool6_response = urllib.request.urlopen(pool6)
+        pool7_response = urllib.request.urlopen(pool7)
+        pool8_response = urllib.request.urlopen(pool8)
 
         pool1_data = json.loads(pool1_response.read())
         pool2_data = json.loads(pool2_response.read())
         pool3_data = json.loads(pool3_response.read())
         pool4_data = json.loads(pool4_response.read())
+        pool5_data = json.loads(pool5_response.read())
+        pool6_data = json.loads(pool6_response.read())
+        pool7_data = json.loads(pool7_response.read())
+        pool8_data = json.loads(pool8_response.read())
+        
 
-        pool1_hashrate = pool1_data['pool']['hashrate'] / 1000
-        pool1_miners = pool1_data['pool']['miners']
-        pool1_fee = pool1_data['config']['fee']
+        pool1_hashrate = pool1_data['pool_statistics']['hashRate'] / 1000
+        pool1_miners = pool1_data['pool_statistics']['miners']
 
         pool2_hashrate = pool2_data['pool']['hashrate'] / 1000
         pool2_miners = pool2_data['pool']['miners']
@@ -265,34 +276,77 @@ while menu == "0":
         pool4_miners = pool4_data['pool']['miners']
         pool4_fee = pool4_data['config']['fee']
 
+        pool5_hashrate = pool5_data['pool']['hashrate'] / 1000
+        pool5_miners = pool5_data['pool']['miners']
+        pool5_fee = pool5_data['config']['fee']
+
+        pool6_hashrate = pool4_data['pool']['hashrate'] / 1000
+        pool6_miners = pool6_data['pool']['miners']
+        pool6_fee = pool6_data['config']['fee']
+
+        pool7_hashrate = pool7_data['pool']['hashrate'] / 1000
+        pool7_miners = pool7_data['pool']['miners']
+        pool7_fee = pool7_data['config']['fee']
+        
+        pool8_hashrate = pool8_data['pool']['hashrate'] / 1000
+        pool8_miners = pool8_data['pool']['miners']
+        pool8_fee = pool8_data['config']['fee']
+
         clear()
 
         print("")
-        print("----Official Pool----")
+        print("----Semi-Pool---")
         print("Hash rate: " + str(pool1_hashrate) + "kh/s")
         print("Miners: " + str(pool1_miners))
-        print("Fee: " + str(pool1_fee) + "%")
         print("_______________________")
         print("")
         print("")
-        print("----DuckTownMining---")
+        print("----PubNodes----")
         print("Hash rate: " + str(pool2_hashrate) + "kh/s")
         print("Miners: " + str(pool2_miners))
         print("Fee: " + str(pool2_fee) + "%")
         print("_______________________")
         print("")
         print("")
-        print("-------Line Pool-------")
+        print("------Vano-----")
         print("Hash rate: " + str(pool3_hashrate) + "kh/s")
         print("Miners: " + str(pool3_miners))
         print("Fee: " + str(pool3_fee) + "%")
         print("_______________________")
         print("")
         print("")
-        print("------Spooky Pool------")
+        print("-----Hopto-----")
         print("Hash rate: " + str(pool4_hashrate) + "kh/s")
         print("Miners: " + str(pool4_miners))
         print("Fee: " + str(pool4_fee) + "%")
+        print("_______________________")
+        print("")
+        print("")
+        print("-----CNpool----")
+        print("Hash rate: " + str(pool5_hashrate) + "kh/s")
+        print("Miners: " + str(pool5_miners))
+        print("Fee: " + str(pool5_fee) + "%")
+        print("_______________________")
+        print("")
+        print("")
+        print("---SpookyPool--")
+        print("Hash rate: " + str(pool6_hashrate) + "kh/s")
+        print("Miners: " + str(pool6_miners))
+        print("Fee: " + str(pool6_fee) + "%")
+        print("_______________________")
+        print("")
+        print("")
+        print("--MiningPool--")
+        print("Hash rate: " + str(pool7_hashrate) + "kh/s")
+        print("Miners: " + str(pool7_miners))
+        print("Fee: " + str(pool7_fee) + "%")
+        print("_______________________")
+        print("")
+        print("")
+        print("---PoolBay----")
+        print("Hash rate: " + str(pool8_hashrate) + "kh/s")
+        print("Miners: " + str(pool8_miners))
+        print("Fee: " + str(pool8_fee) + "%")
         print("_______________________")
         print("")
 
